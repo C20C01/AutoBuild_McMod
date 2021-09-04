@@ -11,10 +11,10 @@ import java.io.UnsupportedEncodingException;
 import javax.imageio.ImageIO;
 
 public class Word2Txt {
-//·����D:/CC-JAVA/IO/image2word_2
+//路径：D:/CC-JAVA/IO，使用时请自行更改。
 	public static void main(String[] argv) throws IOException {
-		java.awt.image.BufferedImage img = ImageIO.read(new File("D:/CC-JAVA/IO/image2word_2/in.jpg"));
-		File newfiFile = new File("D:/CC-JAVA/IO/image2word_2/file.txt");
+		java.awt.image.BufferedImage img = ImageIO.read(new File("D:/CC-JAVA/IO/in.jpg"));
+		File newfiFile = new File("D:/CC-JAVA/IO/file.txt");
 		FileOutputStream fileOutputStream;
 		int width = img.getWidth();
 		int height = img.getHeight();
@@ -41,13 +41,16 @@ public class Word2Txt {
 						bufferedWriter.write("9");
 						bufferedWriter.write("\n");
 					}
+					
+					//这里只有两种输出，就是单色的地图画，大家可以自行添加更多的输出。
+					
 				}
 			}
 
 			bufferedWriter.close();
 			outputStreamWriter.close();
 			fileOutputStream.close();
-			System.err.println("ok");
+			System.out.println("ok");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
