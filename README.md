@@ -120,9 +120,9 @@
 
     很简单的一个java程序，也放在这个里面了（jpgTotxt.java）,输入一个128*128像素的图片，输出一个写满0\~9的file.txt。
     
-##  在我的博客上有更多的介绍
+##  在博客上有更多的介绍
 
-    xxxxx.com
+    https://c20c01.github.io/2021/09/04/mc%E8%87%AA%E5%8A%A8%E6%90%AD%E5%BB%BAMod/
     
 ## 致谢
 
