@@ -52,65 +52,67 @@ public class CCMod {
     @SubscribeEvent
     public static void tick(TickEvent.ClientTickEvent event) {
 
-        if (mc.options.keyAttack.isDown() && mc.player != null) {
-            if (!attackDown) {
+        if (mc.level != null)
+            if (mc.player != null && mc.options.keyAttack.isDown()) {
+                if (!attackDown) {
 
-                if (mc.player.getMainHandItem().getItem() == Items.FEATHER) {
-                    if (doingJob) {
-                        if (stop) {
-                            stop = false;
-                            cancelOrStop = false;
-                            mc.player.sendMessage(new StringTextComponent("Resume!"), mc.player.getUUID());
-                        }
-                    } else {
-                        if (mc.hitResult != null && mc.hitResult.getType().equals(RayTraceResult.Type.BLOCK)) {
-                            if (set) {
-                                DoJob();
-                                set = false;
+                    if (mc.player.getMainHandItem().getItem() == Items.FEATHER) {
+                        if (doingJob) {
+                            if (stop) {
+                                stop = false;
+                                cancelOrStop = false;
+                                mc.player.sendMessage(new StringTextComponent("Resume!"), mc.player.getUUID());
+                            }
+                        } else {
+                            if (mc.hitResult != null && mc.hitResult.getType().equals(RayTraceResult.Type.BLOCK)) {
+                                if (set) {
+                                    DoJob();
+                                    set = false;
+                                } else {
+                                    SetPoint();
+                                }
                             } else {
-                                SetPoint();
-                            }
-                        } else {
-                            if (!hadFile)
-                                LoadingMap();
-                            else {
-                                hadFile = false;
-                                mc.player.sendMessage(new StringTextComponent("The map file is no longer used!"), mc.player.getUUID());
-                            }
+                                if (!hadFile)
+                                    LoadingMap();
+                                else {
+                                    hadFile = false;
+                                    mc.player.sendMessage(new StringTextComponent("The map file is no longer used!"), mc.player.getUUID());
+                                }
 
+                            }
                         }
                     }
-                }
 
-                if (mc.player.getMainHandItem().getItem() == Items.STICK) {
-                    if (doingJob) {
-                        if (!cancelOrStop) {
-                            stop = true;
-                            cancelOrStop = true;
-                            assert mc.level != null;
-                            mc.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.NOTE_BLOCK_PLING, SoundCategory.VOICE, 10, 10);
-                            mc.player.sendMessage(new StringTextComponent("Pause! Click with feather to resume,or click with stick again to cancel."), mc.player.getUUID());
+                    if (mc.player.getMainHandItem().getItem() == Items.STICK) {
+                        if (doingJob) {
+                            if (!cancelOrStop) {
+                                stop = true;
+                                cancelOrStop = true;
+                                assert mc.level != null;
+                                mc.level.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.NOTE_BLOCK_PLING, SoundCategory.VOICE, 10, 10);
+                                mc.player.sendMessage(new StringTextComponent("Pause! Click with feather to resume,or click with stick again to cancel."), mc.player.getUUID());
+                            } else {
+                                stop = false;
+                                cancelOrStop = false;
+                                EndJob();
+                                mc.player.sendMessage(new StringTextComponent("Cancel!"), mc.player.getUUID());
+                            }
                         } else {
-                            stop = false;
-                            cancelOrStop = false;
-                            EndJob();
-                            mc.player.sendMessage(new StringTextComponent("Cancel!"), mc.player.getUUID());
+                            if (mc.hitResult != null && mc.hitResult.getType().equals(RayTraceResult.Type.BLOCK))
+                                CrashRestart();
+                            else
+                                Setting();
                         }
-                    } else {
-                        if (mc.hitResult != null && mc.hitResult.getType().equals(RayTraceResult.Type.BLOCK))
-                            CrashRestart();
-                        else
-                            Setting();
                     }
-                }
 
-                attackDown = true;
+                    attackDown = true;
+                }
+            } else {
+                attackDown = false;
             }
-        } else {
-            attackDown = false;
-        }
 
     }
+
 
     public static void GOGO() {
         assert mc.player != null;
@@ -150,6 +152,7 @@ public class CCMod {
         }, 0, 100);
     }
 
+
     public static void DoJob() {
         assert mc.player != null;
         assert mc.gameMode != null;
@@ -164,6 +167,7 @@ public class CCMod {
             }
         }, 5000);
     }
+
 
     public static void SetAndRun() {
         assert mc.player != null;
@@ -197,6 +201,7 @@ public class CCMod {
         }
     }
 
+
     public static void WantGo() {
         assert mc.player != null;
         number = HAVE_BLOCK[haveBlockI];
@@ -229,6 +234,7 @@ public class CCMod {
         }
     }
 
+
     public static void ChooseAndSet() {
         assert mc.player != null;
         int BlockNumber = BLOCK[number] - 48;
@@ -236,6 +242,7 @@ public class CCMod {
             mc.player.inventory.selected = BlockNumber;
         SetBlock(base_x + x, base_y + 1, base_z + z);
     }
+
 
     public static void ChangeBlock() {
         if (pause) {
@@ -252,27 +259,28 @@ public class CCMod {
         }
     }
 
+
     public static void SetPoint() {
         assert mc.hitResult != null;
         if (first) {
             set = false;
             firstpoint = ((BlockRayTraceResult) mc.hitResult).getBlockPos();
             assert mc.player != null;
-            mc.player.sendMessage(new StringTextComponent("Set the reference point to : " + firstpoint + " ?"), mc.player.getUUID());
-            mc.player.sendMessage(new StringTextComponent("Do it again to confirm the reference point."), mc.player.getUUID());
+            mc.player.sendMessage(new StringTextComponent("Set the reference point to : " + firstpoint + " ?\nDo it again to confirm the reference point."), mc.player.getUUID());
             first = false;
         } else if (((BlockRayTraceResult) mc.hitResult).getBlockPos().equals(firstpoint)) {
             base_x = firstpoint.getX();
             base_y = firstpoint.getY();
             base_z = firstpoint.getZ();
             assert mc.player != null;
-            mc.player.sendMessage(new StringTextComponent("Reference point : " + firstpoint + " ." + "Put your feather and stick in the first two bar,then hit any block with feather to start building."), mc.player.getUUID());
+            mc.player.sendMessage(new StringTextComponent("Reference point : " + firstpoint + " ." + "Put your feather and stick in the first two bar,\nthen hit any block with feather to start building."), mc.player.getUUID());
             set = true;
         } else {
             first = true;
             SetPoint();
         }
     }
+
 
     public static void LoadingMap() {
         assert mc.player != null;
@@ -290,7 +298,6 @@ public class CCMod {
             e.printStackTrace();
         }
         if (hadFile) {
-            mc.player.sendMessage(new StringTextComponent("The map file is loaded. Click with stick to set the target size."), mc.player.getUUID());
             Reader reader;
             try {
                 reader = new InputStreamReader(new FileInputStream(file));
@@ -308,6 +315,7 @@ public class CCMod {
                     }
                 }
                 reader.close();
+                mc.player.sendMessage(new StringTextComponent("The map file is loaded. Click with stick to set the target size."), mc.player.getUUID());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -315,6 +323,7 @@ public class CCMod {
             mc.player.sendMessage(new StringTextComponent("A new folder named 'file.txt' has been created in 'CCMod'."), mc.player.getUUID());
         }
     }
+
 
     public static void EndJob() {
         assert mc.level != null;
@@ -361,19 +370,19 @@ public class CCMod {
         mc.gameMode.useItemOn(mc.player, mc.level, Hand.MAIN_HAND, blockRTR);
     }
 
+
     public static void CrashRestart() {
         assert mc.player != null;
         if (!hadFile) {
 
             mc.player.sendMessage(new StringTextComponent("This function only available in the map building mode."), mc.player.getUUID());
-        }
-        else if (set) {
+        } else if (set) {
             assert mc.hitResult != null;
             BlockPos restartPoint = ((BlockRayTraceResult) mc.hitResult).getBlockPos();
             int restart_x = restartPoint.getX();
             int restart_z = restartPoint.getZ();
             mc.player.sendMessage(new StringTextComponent("Set the restart point(The last block built last time) to {X:" + restart_x + "," + "Z:" + restart_z + "}."), mc.player.getUUID());
-            mc.player.sendMessage(new StringTextComponent("After confirming that the other settings are correct, hit any block with feather to start building."), mc.player.getUUID());
+            mc.player.sendMessage(new StringTextComponent("After confirming that the other settings are correct,\nhit any block with feather to start building."), mc.player.getUUID());
             x = restart_x - base_x;
             z = restart_z - base_z;
             int restartNumber = (restart_x - base_x) + (restart_z - base_z) * longX;
